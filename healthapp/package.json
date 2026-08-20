@@ -13,7 +13,7 @@
     "calculateExercises": "tsc && tsx exerciseCalculator.ts",
     "start": "tsx index.ts",
     "dev": "tsx watch index.ts",
-    "lint": "eslint"
+    "lint": "tsx eslint.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
