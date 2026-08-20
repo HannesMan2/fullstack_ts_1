@@ -12,7 +12,8 @@
     "calculateBmi": "tsc && tsx bmiCalculator.ts",
     "calculateExercises": "tsc && tsx exerciseCalculator.ts",
     "start": "tsx index.ts",
-    "dev": "tsx watch index.ts"
+    "dev": "tsx watch index.ts",
+    "lint": "eslint"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
