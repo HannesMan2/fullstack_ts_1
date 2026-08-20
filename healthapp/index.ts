@@ -33,8 +33,12 @@ app.get("/bmi", (req, res) => {
   });
 });
 
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 app.post("/exercises", (req, res) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const body: any = req.body;
 
   if (
@@ -65,6 +69,11 @@ app.post("/exercises", (req, res) => {
 
   res.json(calculateExercises(dailyExercises, target));
 });
+
+/* eslint-enable @typescript-eslint/no-unsafe-assignment */
+/* eslint-enable @typescript-eslint/no-unsafe-member-access */
+/* eslint-enable @typescript-eslint/no-unsafe-argument */
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 const PORT = 3000;
 
