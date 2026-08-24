@@ -288,7 +288,7 @@ const AddPatientForm = ({
           type="submit"
           variant="contained"
         >
-          Add
+          Add New Patient
         </Button>
       </Grid>
     </form>

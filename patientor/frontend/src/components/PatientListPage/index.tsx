@@ -118,7 +118,7 @@ const PatientListPage = ({
           onClick={openModal}
           sx={{ marginTop: 2 }}
         >
-          Add Entry
+          Add New Entry
         </Button>
 
         <Typography
