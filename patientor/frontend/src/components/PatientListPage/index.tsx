@@ -15,10 +15,12 @@ import { Link, useParams } from "react-router-dom";
 import {
   Patient,
   Diagnosis,
-  Entry
+  Entry,
+  PatientFormValues
 } from "../../types";
 
 import AddPatientModal from "../AddPatientModal";
+import AddEntryModal from "../AddEntryModal";
 import HealthRatingBar from "../HealthRatingBar";
 import EntryDetails from "../EntryDetails";
 import patientService from "../../services/patients";
@@ -33,6 +35,8 @@ const PatientListPage = ({
   diagnoses
 }: Props) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [entryModalOpen, setEntryModalOpen] = useState(false);
+
   const [error, setError] = useState<string>();
   const [patient, setPatient] = useState<Patient>();
 
@@ -49,13 +53,23 @@ const PatientListPage = ({
     }
   }, [id]);
 
-  const openModal = () => {
-    setModalOpen(true);
-  };
+  const submitNewPatient = async (
+    values: PatientFormValues
+  ) => {
+    try {
+      await patientService.create(values);
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setError(undefined);
+      setModalOpen(false);
+      setError(undefined);
+
+      window.location.reload();
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        setError("Could not add patient");
+      } else {
+        setError("Unknown error");
+      }
+    }
   };
 
   const submitNewEntry = async (
@@ -69,7 +83,7 @@ const PatientListPage = ({
         values
       );
 
-      setPatient(currentPatient => {
+      setPatient((currentPatient) => {
         if (!currentPatient) return currentPatient;
 
         return {
@@ -78,23 +92,11 @@ const PatientListPage = ({
         };
       });
 
-      setModalOpen(false);
+      setEntryModalOpen(false);
       setError(undefined);
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        if (
-          e.response?.data &&
-          typeof e.response.data === "string"
-        ) {
-          setError(
-            e.response.data.replace(
-              "Something went wrong. Error: ",
-              ""
-            )
-          );
-        } else {
-          setError("Unrecognized axios error");
-        }
+        setError("Could not add entry");
       } else {
         setError("Unknown error");
       }
@@ -115,20 +117,16 @@ const PatientListPage = ({
 
         <Button
           variant="contained"
-          onClick={openModal}
-          sx={{ marginTop: 2 }}
+          onClick={() => setEntryModalOpen(true)}
         >
           Add New Entry
         </Button>
 
-        <Typography
-          variant="h5"
-          sx={{ marginTop: 3 }}
-        >
+        <Typography variant="h5" sx={{ marginTop: 3 }}>
           Entries
         </Typography>
 
-        {patient.entries.map(entry => (
+        {patient.entries.map((entry) => (
           <Box
             key={entry.id}
             sx={{
@@ -137,9 +135,7 @@ const PatientListPage = ({
               marginTop: 2
             }}
           >
-            <Typography>
-              {entry.date}
-            </Typography>
+            <Typography>{entry.date}</Typography>
 
             <Typography>
               {entry.description}
@@ -151,10 +147,9 @@ const PatientListPage = ({
 
             {entry.diagnosisCodes && (
               <ul>
-                {entry.diagnosisCodes.map(code => {
+                {entry.diagnosisCodes.map((code) => {
                   const diagnosis = diagnoses.find(
-                    diagnosis =>
-                      diagnosis.code === code
+                    (d) => d.code === code
                   );
 
                   return (
@@ -170,11 +165,11 @@ const PatientListPage = ({
           </Box>
         ))}
 
-        <AddPatientModal
-          modalOpen={modalOpen}
+        <AddEntryModal
+          modalOpen={entryModalOpen}
           onSubmit={submitNewEntry}
           error={error}
-          onClose={closeModal}
+          onClose={() => setEntryModalOpen(false)}
           diagnoses={diagnoses}
         />
       </div>
@@ -186,7 +181,7 @@ const PatientListPage = ({
   }
 
   return (
-    <div className="App">
+    <div>
       <Box>
         <Typography
           align="center"
@@ -194,6 +189,14 @@ const PatientListPage = ({
         >
           Patient list
         </Typography>
+
+        <Button
+          variant="contained"
+          onClick={() => setModalOpen(true)}
+          sx={{ marginY: 2 }}
+        >
+          Add New Patient
+        </Button>
       </Box>
 
       <Table sx={{ marginBottom: "1em" }}>
@@ -207,7 +210,7 @@ const PatientListPage = ({
         </TableHead>
 
         <TableBody>
-          {patients.map(patient => (
+          {patients.map((patient) => (
             <TableRow key={patient.id}>
               <TableCell>
                 <Link to={`/patients/${patient.id}`}>
@@ -233,6 +236,16 @@ const PatientListPage = ({
           ))}
         </TableBody>
       </Table>
+
+      <AddPatientModal
+        modalOpen={modalOpen}
+        onSubmit={submitNewPatient}
+        error={error}
+        onClose={() => {
+          setModalOpen(false);
+          setError(undefined);
+        }}
+      />
     </div>
   );
 };
