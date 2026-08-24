@@ -21,29 +21,34 @@ const AddPatientModal = ({
   onClose,
   onSubmit,
   error
-}: Props) => (
-  <Dialog
-    fullWidth
-    open={modalOpen}
-    onClose={onClose}
-  >
-    <DialogTitle>Add New Patient</DialogTitle>
+}: Props) => {
+  return (
+    <Dialog
+      fullWidth
+      open={modalOpen}
+      onClose={onClose}
+      aria-labelledby="add-patient-dialog-title"
+    >
+      <DialogTitle id="add-patient-dialog-title">
+        Add a new patient
+      </DialogTitle>
 
-    <Divider />
+      <Divider />
 
-    <DialogContent>
-      {error && (
-        <Alert severity="error">
-          {error}
-        </Alert>
-      )}
+      <DialogContent>
+        {error && (
+          <Alert severity="error">
+            {error}
+          </Alert>
+        )}
 
-      <AddPatientForm
-        onSubmit={onSubmit}
-        onCancel={onClose}
-      />
-    </DialogContent>
-  </Dialog>
-);
+        <AddPatientForm
+          onSubmit={onSubmit}
+          onCancel={onClose}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 export default AddPatientModal;

@@ -53,7 +53,7 @@ const AddPatientForm = ({
       />
 
       <TextField
-        label="SSN"
+        label="Social security number"
         fullWidth
         margin="normal"
         value={ssn}

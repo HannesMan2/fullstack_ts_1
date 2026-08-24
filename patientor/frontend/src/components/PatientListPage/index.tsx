@@ -45,8 +45,16 @@ const PatientListPage = ({
   useEffect(() => {
     if (id) {
       const getPatient = async () => {
-        const data = await patientService.getOne(id);
-        setPatient(data);
+        try {
+          const data = await patientService.getOne(id);
+          setPatient(data);
+        } catch (e: unknown) {
+          if (axios.isAxiosError(e)) {
+            setError("Could not fetch patient");
+          } else {
+            setError("Unknown error");
+          }
+        }
       };
 
       void getPatient();
@@ -84,11 +92,24 @@ const PatientListPage = ({
       );
 
       setPatient((currentPatient) => {
-        if (!currentPatient) return currentPatient;
+        if (!currentPatient) {
+          return currentPatient;
+        }
+
+        const alreadyExists = currentPatient.entries.some(
+          (entry) => entry.id === newEntry.id
+        );
+
+        if (alreadyExists) {
+          return currentPatient;
+        }
 
         return {
           ...currentPatient,
-          entries: currentPatient.entries.concat(newEntry)
+          entries: [
+            ...currentPatient.entries,
+            newEntry
+          ]
         };
       });
 
@@ -122,7 +143,10 @@ const PatientListPage = ({
           Add New Entry
         </Button>
 
-        <Typography variant="h5" sx={{ marginTop: 3 }}>
+        <Typography
+          variant="h5"
+          sx={{ marginTop: 3 }}
+        >
           Entries
         </Typography>
 
@@ -135,7 +159,9 @@ const PatientListPage = ({
               marginTop: 2
             }}
           >
-            <Typography>{entry.date}</Typography>
+            <Typography>
+              {entry.date}
+            </Typography>
 
             <Typography>
               {entry.description}
@@ -145,21 +171,22 @@ const PatientListPage = ({
               Specialist: {entry.specialist}
             </Typography>
 
-            {entry.diagnosisCodes && (
-              <ul>
-                {entry.diagnosisCodes.map((code) => {
-                  const diagnosis = diagnoses.find(
-                    (d) => d.code === code
-                  );
+            {entry.diagnosisCodes &&
+              entry.diagnosisCodes.length > 0 && (
+                <ul>
+                  {entry.diagnosisCodes.map((code) => {
+                    const diagnosis = diagnoses.find(
+                      (d) => d.code === code
+                    );
 
-                  return (
-                    <li key={code}>
-                      {code} {diagnosis?.name}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+                    return (
+                      <li key={code}>
+                        {code} {diagnosis?.name}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
 
             <EntryDetails entry={entry} />
           </Box>
@@ -169,7 +196,10 @@ const PatientListPage = ({
           modalOpen={entryModalOpen}
           onSubmit={submitNewEntry}
           error={error}
-          onClose={() => setEntryModalOpen(false)}
+          onClose={() => {
+            setEntryModalOpen(false);
+            setError(undefined);
+          }}
           diagnoses={diagnoses}
         />
       </div>
@@ -213,7 +243,9 @@ const PatientListPage = ({
           {patients.map((patient) => (
             <TableRow key={patient.id}>
               <TableCell>
-                <Link to={`/patients/${patient.id}`}>
+                <Link
+                  to={`/patients/${patient.id}`}
+                >
                   {patient.name}
                 </Link>
               </TableCell>
